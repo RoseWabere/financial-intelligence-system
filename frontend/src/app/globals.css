@@ -1,0 +1,126 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/*  CSS Variables ============================================================─ */
+:root {
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  /* UPDATED COLORS (same variable names) */
+
+  /* --clr-earth: #0F766E;
+  --clr-earth-l: #14B8A6;
+  --clr-earth-d: #0B5E57; */
+
+  --clr-earth:   #15803D;
+  --clr-earth-l: #22C55E;
+  --clr-earth-d: #14532D;
+
+  /* --clr-gold: #F59E0B;
+  --clr-gold-l: #FBBF24; */
+
+  --clr-gold:   #D4A017;
+  --clr-gold-l: #E6C200;
+  --clr-gold-d: #A17C12;
+
+  --clr-sand: #F9FAFB;
+  --clr-sand-d: #E5E7EB;
+
+  --clr-clay: #EF4444;
+  --clr-smoke: #F3F4F6;
+
+  --clr-charcoal: #111827;
+  --clr-muted: #6B7280;
+  --clr-border: #E5E7EB;
+  --clr-surface: #FFFFFF;
+}
+
+/* === Base =========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--clr-charcoal);
+  background: var(--clr-smoke);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* === Shimmer skeleton ========================================================= */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--clr-border) 25%,
+    var(--clr-sand) 50%,
+    var(--clr-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* === Chat scroll ===============================================================─ */
+.chat-scroll::-webkit-scrollbar { width: 4px; }
+.chat-scroll::-webkit-scrollbar-track  { background: transparent; }
+.chat-scroll::-webkit-scrollbar-thumb  { background: var(--clr-border); border-radius: 99px; }
+
+/* === Fade-up stagger =========================================================─ */
+.stagger > * {
+  opacity: 0;
+  animation: fadeUp 0.5s ease forwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.12s; }
+.stagger > *:nth-child(3) { animation-delay: 0.19s; }
+.stagger > *:nth-child(4) { animation-delay: 0.26s; }
+.stagger > *:nth-child(5) { animation-delay: 0.33s; }
+.stagger > *:nth-child(6) { animation-delay: 0.40s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Grain overlay ============================================================─ */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* === Offline banner ============================================================ */
+.offline-bar {
+  background: var(--clr-clay);
+  color: white;
+  text-align: center;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  animation: fadeUp 0.3s ease;
+}

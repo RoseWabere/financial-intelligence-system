@@ -1,0 +1,94 @@
+
+version: "3.9"
+
+services:
+
+  app:
+    build: .
+    container_name: hela_flow
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL_ASYNC: ${DATABASE_URL_ASYNC}
+      DATABASE_URL_SYNC: ${DATABASE_URL_SYNC}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      SCHEMA: ${SCHEMA:-fintel}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL_ASYNC}
+      DATABASE_URL_SYNC: ${DATABASE_URL_SYNC}
+      MINIO_ENDPOINT: minio:9000
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL_SYNC: ${DATABASE_URL_SYNC}
+
+  whatsapp-bot:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.whatsapp
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      - "3001:3001"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - whatsapp_session:/app/.wwebjs_auth
+
+volumes:
+  minio_data:
+  whatsapp_session:
+
+
+# This `docker-compose.yml` file defines a multi-service application with four services: 
+#     `app`, `minio`, `backend`, and `whatsapp-bot`. 
+
+# Each service has its own configuration for building, environment variables, 
+#     ports, and volumes. The `app` service runs the main application, while 
+#     the `minio` service provides object storage. The `backend` service handles 
+#     backend logic and depends on the `minio` service, and the `whatsapp-bot` 
+#     service interacts with the backend to provide WhatsApp bot functionality.
